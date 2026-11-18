@@ -1,0 +1,43 @@
+name: exchange
+description: "Baht-Kyat Exchange — THB/MMK exchange app (Supabase backend, same data as the website)."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  # Backend: Supabase only (same project/tables/RLS/storage as the website).
+  supabase_flutter: ^2.9.0
+  # Google sign-in -> Supabase signInWithIdToken (no Firebase).
+  google_sign_in: ^7.0.0
+  # Slip / proof photo picking (camera + gallery).
+  image_picker: ^1.1.2
+  # Client-side slip compression: max 1200px, JPEG quality 0.82
+  # (mirrors the website's canvas compression). Pure Dart, no native code.
+  image: ^4.3.0
+  # Telegram / Viber floating contact buttons (brand SVGs from the website).
+  flutter_svg: ^2.0.17
+  # Open Telegram / Viber links.
+  url_launcher: ^6.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/NotoSansMyanmar-Regular.ttf
+
+  fonts:
+    - family: NotoSansMyanmar
+      fonts:
+        - asset: assets/fonts/NotoSansMyanmar-Regular.ttf
