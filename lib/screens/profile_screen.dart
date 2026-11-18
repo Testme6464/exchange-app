@@ -273,6 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                           ),
+                          const SizedBox(width: 8),
                           OutlinedButton(
                             onPressed: () => _removeReceiver(entry.key),
                             child: Text(s('removeReceiver')),

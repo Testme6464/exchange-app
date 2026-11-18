@@ -63,6 +63,9 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
       }
     }
     _normalizeMethod();
+    // Fresh shop status on entry, so a shop closed since boot blocks
+    // orders immediately instead of using stale cached settings.
+    widget.state.refreshSettings();
   }
 
   @override
@@ -153,6 +156,15 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     try {
       // Re-read settings so the locked rate is the freshest one.
       await widget.state.refreshSettings();
+      // The shop may have closed mid-wizard: refuse before uploading.
+      if (!widget.state.settings.shop.isOpen) {
+        if (!mounted) return;
+        setState(() {
+          _error = s('shopClosedBlock');
+          _submitting = false;
+        });
+        return;
+      }
       final freshQuote = calcQuote(
         _direction,
         amount!,
@@ -221,6 +233,43 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Shop closed: no order form at all, just the closed message.
+    if (!widget.state.settings.shop.isOpen) {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              s('newOrderTitle'),
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.redPale,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                s('shopClosedBlock'),
+                style: const TextStyle(
+                  color: AppColors.red,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -248,24 +297,6 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!settings.shop.isOpen)
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: AppColors.redPale,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              s('shopClosedWarn'),
-              style: const TextStyle(
-                color: AppColors.red,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
