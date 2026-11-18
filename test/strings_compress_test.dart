@@ -11,8 +11,8 @@ import 'package:image/image.dart' as img;
 void main() {
   group('strings table', () {
     test('contains the website strings plus the app-only additions', () {
-      // 256 copied from js/app.js STRINGS + 8 app-only strings.
-      expect(strings.length, 264);
+      // 257 copied from js/app.js STRINGS + 8 app-only strings.
+      expect(strings.length, 265);
     });
 
     test('every value is non-empty', () {

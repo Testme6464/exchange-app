@@ -232,4 +232,115 @@ void main() {
       expect(sanitizeFileName('IMG_2026.jpg'), 'IMG_2026.jpg');
     });
   });
+
+  group('calcQuote with a custom rate (smart calculator)', () {
+    test('override replaces the shop rate, fee still applies', () {
+      final q =
+          calcQuote('THB_TO_MMK', 1000, _settings(), rateOverride: 150)!;
+      expect(q.rate, 150);
+      expect(q.gross, 150000);
+      expect(q.net, 150000);
+      final qFee = calcQuote('THB_TO_MMK', 1000, _settings(feePercent: 1),
+          rateOverride: 150)!;
+      expect(qFee.fee, 1500);
+      expect(qFee.net, 148500);
+    });
+
+    test('invalid overrides fall back to the live shop rate', () {
+      expect(
+          calcQuote('THB_TO_MMK', 1000, _settings(), rateOverride: 0)!.rate,
+          141.85);
+      expect(
+          calcQuote('THB_TO_MMK', 1000, _settings(), rateOverride: double.nan)!
+              .rate,
+          141.85);
+      expect(
+          calcQuote('THB_TO_MMK', 1000, _settings(), rateOverride: -5)!.rate,
+          141.85);
+    });
+  });
+
+  group('calcReverseQuote', () {
+    test('finds the send amount for a wanted net receive', () {
+      final r = calcReverseQuote('THB_TO_MMK', 141850, _settings())!;
+      expect(r.send, 1000);
+      expect(r.quote.net, 141850);
+      final custom = calcReverseQuote('THB_TO_MMK', 150000, _settings(),
+          rateOverride: 150)!;
+      expect(custom.send, 1000);
+      expect(custom.quote.net, 150000);
+    });
+
+    test('reverse with a fee round-trips the forward quote', () {
+      final r = calcReverseQuote('THB_TO_MMK', 148500, _settings(feePercent: 1),
+          rateOverride: 150)!;
+      expect(r.send, 1000);
+      expect(r.quote.net, 148500);
+    });
+
+    test('MMK direction finds whole-kyat send amounts', () {
+      final r = calcReverseQuote('MMK_TO_THB', 1000, _settings(),
+          rateOverride: 150)!;
+      expect(r.send, 150000);
+      expect(r.quote.net, 1000);
+    });
+
+    test('returns null for non-positive targets', () {
+      expect(calcReverseQuote('THB_TO_MMK', 0, _settings()), isNull);
+      expect(calcReverseQuote('THB_TO_MMK', -5, _settings()), isNull);
+    });
+
+    test('result is minimal: one smallest unit less falls short', () {
+      // The rounding-edge case: 708.85 looks right from the estimate,
+      // but 708.84 already reaches the target.
+      final r = calcReverseQuote('THB_TO_MMK', 100000, _settings(feePercent: 1),
+          rateOverride: 142.5)!;
+      expect(r.send, 708.84);
+      expect(r.quote.net, greaterThanOrEqualTo(100000));
+      expect(
+        calcQuote('THB_TO_MMK', 708.83, _settings(feePercent: 1),
+                rateOverride: 142.5)!
+            .net,
+        lessThan(100000),
+      );
+    });
+
+    test('sweep: reachable and minimal across directions, fees, rates', () {
+      for (final dir in ['THB_TO_MMK', 'MMK_TO_THB']) {
+        for (final fee in [0.0, 0.5, 1.0, 2.5]) {
+          for (final rate in <double?>[null, 140, 142.5, 150, 200]) {
+            for (final target in [100.0, 1000.0, 10000.0, 100000.0, 500000.0, 1000000.0]) {
+              final st = _settings(feePercent: fee);
+              final rev =
+                  calcReverseQuote(dir, target, st, rateOverride: rate);
+              expect(rev, isNotNull,
+                  reason: '$dir fee=$fee rate=$rate target=$target');
+              expect(rev!.quote.net, greaterThanOrEqualTo(target));
+              // Previous smallest unit, computed the way a user would
+              // type it (integer cents for THB, whole kyat for MMK).
+              final prevSend = dir == 'THB_TO_MMK'
+                  ? ((rev.send * 100).round() - 1) / 100
+                  : rev.send - 1;
+              final prevQ =
+                  calcQuote(dir, prevSend, st, rateOverride: rate);
+              expect(prevQ == null || prevQ.net < target, isTrue,
+                  reason:
+                      '$dir fee=$fee rate=$rate target=$target send=${rev.send}');
+            }
+          }
+        }
+      }
+    });
+  });
+
+  group('plainAmount', () {
+    test('THB trims to 2dp, MMK is whole, no separators', () {
+      expect(plainAmount(141.93, 'THB'), '141.93');
+      expect(plainAmount(142, 'THB'), '142');
+      expect(plainAmount(968.9, 'THB'), '968.9');
+      expect(plainAmount(141850, 'MMK'), '141850');
+      expect(plainAmount(1000.5, 'THB'), '1000.5');
+      expect(plainAmount(double.nan, 'THB'), '');
+    });
+  });
 }
