@@ -18,11 +18,18 @@ class NewOrderScreen extends StatefulWidget {
   const NewOrderScreen({
     required this.state,
     required this.onOrderCreated,
+    this.initialDirection,
+    this.initialSendAmount,
     super.key,
   });
 
   final AppState state;
   final ValueChanged<String> onOrderCreated;
+
+  /// Optional prefill from the dashboard smart calculator: direction +
+  /// send amount. The quote always uses the live shop rate.
+  final String? initialDirection;
+  final double? initialSendAmount;
 
   @override
   State<NewOrderScreen> createState() => _NewOrderScreenState();
@@ -61,6 +68,18 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
         _recvName.text = profile.displayName;
         _recvPhone.text = profile.phone;
       }
+    }
+    // Prefill from the dashboard smart calculator, if the user tapped
+    // "order with this amount". Only direction + send amount carry
+    // over; the quote always uses the live shop rate.
+    if (widget.initialDirection != null) {
+      _direction = widget.initialDirection!;
+    }
+    if (widget.initialSendAmount != null) {
+      _amount.text = plainAmount(
+        widget.initialSendAmount!,
+        _direction == 'THB_TO_MMK' ? 'THB' : 'MMK',
+      );
     }
     _normalizeMethod();
     // Fresh shop status on entry, so a shop closed since boot blocks
