@@ -82,7 +82,10 @@ ThemeData buildTheme() {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.blue,
         foregroundColor: Colors.white,
-        minimumSize: const Size.fromHeight(48),
+        // Finite width: Size.fromHeight (infinite width) breaks buttons
+        // laid out inside Rows — in v1.0.0 it squeezed the profile
+        // receiver text to one character per line.
+        minimumSize: const Size(64, 48),
         textStyle: const TextStyle(
           fontFamily: 'NotoSansMyanmar',
           fontSize: 15,
@@ -97,7 +100,8 @@ ThemeData buildTheme() {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.blue,
         side: const BorderSide(color: AppColors.blue),
-        minimumSize: const Size.fromHeight(48),
+        // Must stay finite, see elevatedButtonTheme above.
+        minimumSize: const Size(64, 48),
         textStyle: const TextStyle(
           fontFamily: 'NotoSansMyanmar',
           fontSize: 15,
