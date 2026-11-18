@@ -16,7 +16,7 @@ class AppConfig {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vdHR4cWNmbXNnYmN1emNkcHZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ4NTk1NDgsImV4cCI6MjExMDQzNTU0OH0.vY1bncSmLFbZ2W_O3zUzn4yGmHMvu4rLlBSGkIa7lP8';
 
   /// Web OAuth client ID for Google sign-in. Empty until OAuth is set up.
-  static const String googleWebClientId = '';
+  static const String googleWebClientId = '946002175834-tfjf3qf4f9ocbgpiidlvlckiehhrhef2.apps.googleusercontent.com';
 
   static bool get googleSignInConfigured => googleWebClientId.isNotEmpty;
 }
