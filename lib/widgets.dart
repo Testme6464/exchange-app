@@ -97,7 +97,8 @@ class CardTitle extends StatelessWidget {
   }
 }
 
-/// Red inline error line under a form (empty when [text] is empty).
+/// Black inline error line under a form (empty when [text] is empty).
+/// Errors use black in this palette — no red anywhere.
 class FieldError extends StatelessWidget {
   const FieldError(this.text, {super.key});
 
@@ -110,7 +111,11 @@ class FieldError extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8),
       child: Text(
         text,
-        style: const TextStyle(color: AppColors.red, fontSize: 13),
+        style: const TextStyle(
+          color: AppColors.ink,
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -168,7 +173,11 @@ class ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.red, fontSize: 14),
+              style: const TextStyle(
+                color: AppColors.ink,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
@@ -318,7 +327,7 @@ void showSnack(BuildContext context, String message, {bool isError = false}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(message),
-      backgroundColor: isError ? AppColors.red : AppColors.ink,
+      backgroundColor: AppColors.ink,
     ),
   );
 }
@@ -349,7 +358,7 @@ Future<bool> showConfirm(
         ),
         ElevatedButton(
           style: danger
-              ? ElevatedButton.styleFrom(backgroundColor: AppColors.red)
+              ? ElevatedButton.styleFrom(backgroundColor: AppColors.ink)
               : null,
           onPressed: () => Navigator.of(ctx).pop(true),
           child: Text(confirmLabel ?? s('dialogConfirm')),

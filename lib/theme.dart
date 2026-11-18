@@ -1,7 +1,12 @@
-// Blue + amber theme, copied from the website's css/style.css.
+// Black + white + blue theme, copied from the website's css/style.css.
 // NO green is used as a primary or status color (owner preference).
-// Completed orders use dark blue, pending uses amber, rejected /
-// cancelled use red — exactly like the website's status pills.
+// Only black, white and blue are used anywhere: amber and red were
+// removed 2026-11-19 at the owner's request. Errors and destructive
+// actions use black (ink); the shop fee accent is blue.
+// 3D depth comes from layered elevation + shadows, not from color.
+// Completed orders use dark blue, pending uses light blue, reviewing
+// uses solid blue, rejected / cancelled use black — exactly like the
+// website's status pills.
 
 import 'package:flutter/material.dart';
 
@@ -13,18 +18,13 @@ class AppColors {
   static const Color blueDarker = Color(0xFF1E3A8A);
   static const Color blueLight = Color(0xFFDBEAFE);
   static const Color bluePale = Color(0xFFEFF6FF);
-  static const Color amber = Color(0xFFF59E0B);
-  static const Color amberDark = Color(0xFFB45309);
-  static const Color amberPale = Color(0xFFFEF3C7);
-  static const Color red = Color(0xFFDC2626);
-  static const Color redPale = Color(0xFFFEE2E2);
-  static const Color ink = Color(0xFF1E293B);
+  static const Color ink = Color(0xFF0F172A);
   static const Color muted = Color(0xFF64748B);
   static const Color line = Color(0xFFE2E8F0);
   static const Color bg = Color(0xFFF1F5F9);
   static const Color card = Colors.white;
   static const Color telegram = Color(0xFF229ED9);
-  static const Color viber = Color(0xFF665CAC);
+  static const Color viber = blueDark;
 }
 
 /// Status pill colors, mirroring .pill--* in css/style.css.
@@ -32,14 +32,14 @@ class AppColors {
 ({Color bg, Color fg}) statusPillColors(String status) {
   switch (status) {
     case 'pending':
-      return (bg: AppColors.amberPale, fg: AppColors.amberDark);
-    case 'reviewing':
       return (bg: AppColors.blueLight, fg: AppColors.blueDark);
+    case 'reviewing':
+      return (bg: AppColors.blue, fg: Colors.white);
     case 'completed':
       return (bg: AppColors.blueDark, fg: Colors.white);
     case 'rejected':
     case 'cancelled':
-      return (bg: AppColors.redPale, fg: AppColors.red);
+      return (bg: AppColors.ink, fg: Colors.white);
     default:
       return (bg: AppColors.bluePale, fg: AppColors.blueDark);
   }
@@ -54,15 +54,16 @@ ThemeData buildTheme() {
     colorScheme: const ColorScheme.light(
       primary: AppColors.blue,
       onPrimary: Colors.white,
-      secondary: AppColors.amber,
+      secondary: AppColors.blueDark,
       surface: AppColors.card,
       onSurface: AppColors.ink,
-      error: AppColors.red,
+      error: AppColors.ink,
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.blue,
       foregroundColor: Colors.white,
-      elevation: 0,
+      elevation: 6,
+      shadowColor: Color(0x400F172A),
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontFamily: 'NotoSansMyanmar',
@@ -73,8 +74,10 @@ ThemeData buildTheme() {
     ),
     cardTheme: const CardThemeData(
       color: AppColors.card,
-      elevation: 1,
-      shadowColor: Color(0x140F172A),
+      // 3D depth: a raised card with a soft key shadow, no tint.
+      elevation: 6,
+      shadowColor: Color(0x400F172A),
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: radius),
       margin: EdgeInsets.zero,
     ),
@@ -82,6 +85,9 @@ ThemeData buildTheme() {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.blue,
         foregroundColor: Colors.white,
+        // 3D depth: raised button with a blue key shadow.
+        elevation: 4,
+        shadowColor: Color(0x661E3A8A),
         // Finite width: Size.fromHeight (infinite width) breaks buttons
         // laid out inside Rows — in v1.0.0 it squeezed the profile
         // receiver text to one character per line.
@@ -140,7 +146,7 @@ ThemeData buildTheme() {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.red),
+        borderSide: const BorderSide(color: AppColors.ink, width: 2),
       ),
       labelStyle: const TextStyle(color: AppColors.ink, fontSize: 14),
       hintStyle: const TextStyle(color: AppColors.muted, fontSize: 14),
@@ -165,9 +171,12 @@ ThemeData buildTheme() {
         borderRadius: BorderRadius.circular(999),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      elevation: 2,
+      shadowColor: const Color(0x1F0F172A),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
+      elevation: 8,
       selectedItemColor: AppColors.blue,
       unselectedItemColor: AppColors.muted,
       selectedLabelStyle: TextStyle(
