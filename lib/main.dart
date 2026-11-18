@@ -112,6 +112,10 @@ class _ShellState extends State<Shell> {
   ShellPage _page = ShellPage.home;
   final Map<ShellPage, int> _visits = {for (final p in ShellPage.values) p: 0};
   bool _blockedNoticeShown = false;
+  // One-shot prefill set by the dashboard smart calculator's order
+  // button; consumed by the next NewOrderScreen mount, then cleared by
+  // any later navigation.
+  ({String direction, double sendAmount})? _orderPrefill;
 
   @override
   void didChangeDependencies() {
@@ -127,11 +131,19 @@ class _ShellState extends State<Shell> {
     }
   }
 
-  void _goTo(ShellPage page) {
+  void _goTo(ShellPage page, {bool keepPrefill = false}) {
+    if (!keepPrefill) _orderPrefill = null;
     setState(() {
       _visits[page] = _visits[page]! + 1;
       _page = page;
     });
+  }
+
+  /// Dashboard smart calculator: open the wizard with a direction +
+  /// send amount prefilled. The wizard requotes at the live shop rate.
+  void _goToNewOrderPrefilled(String direction, double sendAmount) {
+    _orderPrefill = (direction: direction, sendAmount: sendAmount);
+    _goTo(ShellPage.newOrder, keepPrefill: true);
   }
 
   void _onAuthSuccess() {
@@ -196,12 +208,15 @@ class _ShellState extends State<Shell> {
           state: state,
           onViewOrders: () => _goTo(ShellPage.orders),
           onNewOrder: () => _goTo(ShellPage.newOrder),
+          onOrderWithAmount: _goToNewOrderPrefilled,
         );
       case ShellPage.newOrder:
         return NewOrderScreen(
           key: key,
           state: state,
           onOrderCreated: _openOrderDetail,
+          initialDirection: _orderPrefill?.direction,
+          initialSendAmount: _orderPrefill?.sendAmount,
         );
       case ShellPage.orders:
         return OrdersScreen(key: key, state: state);

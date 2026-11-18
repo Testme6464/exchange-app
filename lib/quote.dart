@@ -32,12 +32,27 @@ class Quote {
 /// THB_TO_MMK: gross = send * thb_to_mmk (MMK), fee on gross, net = gross - fee.
 /// MMK_TO_THB: gross = send / mmk_to_thb (THB), fee on gross, net = gross - fee.
 /// Fee is always in the RECEIVE currency. MMK rounds to whole kyat, THB to 2dp.
-Quote? calcQuote(String direction, double sendAmount, AppSettings settings) {
+/// [rateOverride] (smart calculator): a custom rate typed by the user
+/// replaces the shop rate; the fee percent still applies. Orders always
+/// requote at the live shop rate.
+Quote? calcQuote(
+  String direction,
+  double sendAmount,
+  AppSettings settings, {
+  double? rateOverride,
+}) {
   final send = sendAmount;
   if (send.isNaN || send.isInfinite || send <= 0) return null;
   final feePct = settings.fees.feePercent;
+  final requested = rateOverride;
+  final customRate = (requested != null &&
+          !requested.isNaN &&
+          !requested.isInfinite &&
+          requested > 0)
+      ? requested
+      : null;
   if (direction == 'THB_TO_MMK') {
-    final rate = settings.rates.thbToMmk;
+    final rate = customRate ?? settings.rates.thbToMmk;
     final gross = send * rate;
     final fee = (gross * feePct / 100).roundToDouble();
     final grossRounded = gross.roundToDouble();
@@ -50,7 +65,7 @@ Quote? calcQuote(String direction, double sendAmount, AppSettings settings) {
       receiveCurrency: 'MMK',
     );
   }
-  final rate = settings.rates.mmkToThb;
+  final rate = customRate ?? settings.rates.mmkToThb;
   final gross = send / rate;
   final fee = ((gross * feePct / 100 * 100).roundToDouble()) / 100;
   final net = ((gross - fee) * 100).roundToDouble() / 100;
@@ -63,6 +78,106 @@ Quote? calcQuote(String direction, double sendAmount, AppSettings settings) {
     receiveCurrency: 'THB',
   );
 }
+
+/// Reverse quote for the smart calculator (mirrors calcReverseQuote in
+/// js/app.js): given the NET amount the user wants to receive, find the
+/// smallest send amount (in the send currency's smallest unit) whose
+/// forward quote nets at least that much. Uses the same rate override as
+/// [calcQuote], so a custom rate round-trips exactly. Returns null for
+/// invalid input.
+({double send, Quote quote})? calcReverseQuote(
+  String direction,
+  double netAmount,
+  AppSettings settings, {
+  double? rateOverride,
+}) {
+  final target = netAmount;
+  if (target.isNaN || target.isInfinite || target <= 0) return null;
+  final feePct = settings.fees.feePercent;
+  if (feePct >= 100) return null;
+  final requested = rateOverride;
+  final customRate = (requested != null &&
+          !requested.isNaN &&
+          !requested.isInfinite &&
+          requested > 0)
+      ? requested
+      : null;
+  final rate = customRate ??
+      (direction == 'THB_TO_MMK'
+          ? settings.rates.thbToMmk
+          : settings.rates.mmkToThb);
+  if (rate <= 0) return null;
+  final grossNeeded = target / (1 - feePct / 100);
+  if (direction == 'THB_TO_MMK') {
+    // Send currency THB: smallest unit 0.01; iterate in integer cents
+    // so float drift never skips a cent. Walk up to the first send that
+    // reaches the target, then back down while the previous cent still
+    // reaches it — gross rounding can make a smaller send sufficient.
+    var cents = (grossNeeded / rate * 100).ceil();
+    Quote? q;
+    for (var i = 0; i < 10000; i++) {
+      q = calcQuote(direction, cents / 100, settings, rateOverride: rate);
+      if (q != null && q.net >= target) break;
+      cents++;
+    }
+    if (q == null || q.net < target) return null;
+    var found = q;
+    while (cents > 1) {
+      final prev = calcQuote(direction, (cents - 1) / 100, settings,
+          rateOverride: rate);
+      if (prev != null && prev.net >= target) {
+        cents--;
+        found = prev;
+      } else {
+        break;
+      }
+    }
+    return (send: cents / 100, quote: found);
+  }
+  // Send currency MMK: whole kyat; same up-then-down walk.
+  var send = (grossNeeded * rate).ceilToDouble();
+  Quote? q;
+  for (var i = 0; i < 10000; i++) {
+    q = calcQuote(direction, send, settings, rateOverride: rate);
+    if (q != null && q.net >= target) break;
+    send += 1;
+  }
+  if (q == null || q.net < target) return null;
+  var found = q;
+  while (send > 1) {
+    final prev =
+        calcQuote(direction, send - 1, settings, rateOverride: rate);
+    if (prev != null && prev.net >= target) {
+      send -= 1;
+      found = prev;
+    } else {
+      break;
+    }
+  }
+  return (send: send, quote: found);
+}
+
+/// Plain (no thousands separators) amount text for prefilling inputs:
+/// THB to 2dp trimmed, MMK whole. Mirrors fmtPlainAmount in js/app.js.
+String plainAmount(double value, String currency) {
+  if (value.isNaN || value.isInfinite) return '';
+  if (currency == 'THB') {
+    var fixed = value.toStringAsFixed(2);
+    while (fixed.contains('.') && fixed.endsWith('0')) {
+      fixed = fixed.substring(0, fixed.length - 1);
+    }
+    if (fixed.endsWith('.')) fixed = fixed.substring(0, fixed.length - 1);
+    return fixed;
+  }
+  return value.round().toString();
+}
+
+/// Quick send amounts offered by the smart calculator, per direction.
+/// Mirrors QUICK_SEND in js/app.js.
+const Map<String, List<double>> quickSendAmounts = {
+  'THB_TO_MMK': [100, 500, 1000, 5000, 10000],
+  'MMK_TO_THB': [50000, 100000, 500000, 1000000, 2000000],
+};
 
 /// Mirrors amountLimits() in js/app.js.
 ({double min, double max, String currency}) amountLimits(
