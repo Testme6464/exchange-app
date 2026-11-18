@@ -62,7 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(14),
+              // 3D depth: a key shadow that lifts the hero off the page
+              // plus a soft ambient shadow.
               boxShadow: const [
+                BoxShadow(
+                  color: Color(0x591E3A8A),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
                 BoxShadow(
                   color: Color(0x140F172A),
                   blurRadius: 4,
@@ -118,8 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.amberPale,
-                border: Border.all(color: const Color(0xFFFDE68A)),
+                color: AppColors.bluePale,
+                border: Border.all(color: AppColors.blueLight),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -133,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.redPale,
+                color: AppColors.bluePale,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -142,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : s('shopClosed'),
                 style: const TextStyle(
                   fontSize: 14,
-                  color: AppColors.red,
+                  color: AppColors.blueDark,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -228,8 +235,8 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 14),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.amber,
-              foregroundColor: AppColors.ink,
+              backgroundColor: AppColors.blue,
+              foregroundColor: Colors.white,
             ),
             onPressed: widget.onOrderNow,
             child: Text(

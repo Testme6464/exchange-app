@@ -143,13 +143,13 @@ class _AdminScreenState extends State<AdminScreen>
                         vertical: 2,
                       ),
                       decoration: const BoxDecoration(
-                        color: AppColors.amber,
+                        color: AppColors.blue,
                         borderRadius: BorderRadius.all(Radius.circular(999)),
                       ),
                       child: Text(
                         '$_pendingCount',
                         style: const TextStyle(
-                          color: AppColors.ink,
+                          color: Colors.white,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),

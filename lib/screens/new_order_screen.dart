@@ -273,13 +273,13 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                 vertical: 12,
               ),
               decoration: BoxDecoration(
-                color: AppColors.redPale,
+                color: AppColors.bluePale,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 s('shopClosedBlock'),
                 style: const TextStyle(
-                  color: AppColors.red,
+                  color: AppColors.blueDark,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
@@ -425,8 +425,8 @@ class _NewOrderScreenState extends State<NewOrderScreen> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.amberPale,
-                    border: Border.all(color: const Color(0xFFFDE68A)),
+                    color: AppColors.bluePale,
+                    border: Border.all(color: AppColors.blueLight),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

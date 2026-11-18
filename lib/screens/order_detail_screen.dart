@@ -413,7 +413,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         const SizedBox(height: 10),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.red,
+                            backgroundColor: AppColors.ink,
                           ),
                           onPressed: _busy ? null : () => _reject(order),
                           child: Text(s('rejectOrder')),
@@ -426,7 +426,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   const SizedBox(height: 12),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.red,
+                      backgroundColor: AppColors.ink,
                     ),
                     onPressed: () => _cancel(order),
                     child: Text(s('cancelOrder')),
@@ -498,7 +498,7 @@ class _Timeline extends StatelessWidget {
                 width: 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: step.bad ? AppColors.red : AppColors.blue,
+                  color: step.bad ? AppColors.ink : AppColors.blue,
                   shape: BoxShape.circle,
                 ),
               ),

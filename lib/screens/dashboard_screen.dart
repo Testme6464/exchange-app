@@ -125,8 +125,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 14),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.amber,
-                      foregroundColor: AppColors.ink,
+                      backgroundColor: AppColors.blue,
+                      foregroundColor: Colors.white,
                     ),
                     onPressed: widget.onNewOrder,
                     child: Text(s('orderNow')),
@@ -422,8 +422,8 @@ class _SmartCalculatorState extends State<_SmartCalculator> {
           if (widget.shopOpen)
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.amber,
-                foregroundColor: AppColors.ink,
+                backgroundColor: AppColors.blue,
+                foregroundColor: Colors.white,
               ),
               onPressed: orderSend == null
                   ? null
@@ -435,14 +435,14 @@ class _SmartCalculatorState extends State<_SmartCalculator> {
               padding:
                   const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.redPale,
+                color: AppColors.bluePale,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 s('shopClosedBlock'),
                 style: const TextStyle(
                   fontSize: 14,
-                  color: AppColors.red,
+                  color: AppColors.blueDark,
                   fontWeight: FontWeight.w600,
                 ),
               ),

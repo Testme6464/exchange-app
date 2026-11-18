@@ -214,13 +214,13 @@ class _BlockedPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: blocked ? AppColors.redPale : AppColors.blue,
+        color: blocked ? AppColors.ink : AppColors.blue,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         blocked ? s('blocked') : s('active'),
-        style: TextStyle(
-          color: blocked ? AppColors.red : Colors.white,
+        style: const TextStyle(
+          color: Colors.white,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
