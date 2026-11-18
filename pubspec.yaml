@@ -2,7 +2,7 @@ name: exchange
 description: "Baht-Kyat Exchange — THB/MMK exchange app (Supabase backend, same data as the website)."
 publish_to: 'none'
 
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ^3.13.7
